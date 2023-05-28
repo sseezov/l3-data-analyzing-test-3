@@ -56,7 +56,7 @@ for (var i = 3; i < rows.length; i++) {
 var averageForestPlantsLife = sumForestPlantsLife / totalForestPlants;
 console.log('Среднее время жизни лесных растений: ' + averageForestPlantsLife.toFixed(2) + ' лет');
 
-// 5. Определите какое место обитания больше всего свойственно опасным для человека растениям
+// 5.  Определите какое место обитания больше всего свойственно опасным для человека растениям
 var habitats = {};
 for (var i = 2; i < rows.length; i++) {
   var columns = rows[i].split('|');

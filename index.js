@@ -1,46 +1,89 @@
 export default function solution(content) {
-  // BEGIN
+  // 1. Сколько всего растений содержится в файле?
+var rows = content.split('\n');
+var totalPlants = rows.length - 2; // Вычитаем 2 строки заголовка и разделителя
+console.log('Всего растений: ' + totalPlants);
 
-  // Task 1
-  const [, , ...plants] = content.split('\n').map((plant) => plant.split('|').map((cell) => cell.trim()).slice(1, -1));
-  const numberOfPlants = plants.length;
-  console.log('Number of plants: ', numberOfPlants, '\n');
+// 2. Отсортируйте список растений в алфавитном порядке
+var plants = [];
+for (var i = 3; i < rows.length; i++) {
+  var columns = rows[i].split('|');
+  var plantName = columns[1].trim();
+  plants.push(`${plantName[0].toUpperCase()}${plantName.slice(1)}`); // Имя растения с заглавной буквы
+}
+plants.sort();
+console.log('Список растений в алфавитном порядке:');
+console.log(plants);
 
-  // Task 2
-  const renamedPlants = plants.map((plant) => {
-    plant[0] = plant[0][0].toUpperCase() + plant[0].slice(1);
-    return plant;
-  });
-  renamedPlants.sort()
-  console.log('Plants sorted by name:', renamedPlants, '\n');
+// 3. Выведите количество опасных и безопасных для человека растений в данной таблице в процентном соотношении
+var totalPlantsWithDanger = 0;
+var totalPlantsWithoutDanger = 0;
 
-  // Task 3
-  const numberOfDangerous = plants.filter((plant) => plant[4] === 'Да').length;
-  const numberOfSafe = plants.filter((plant) => plant[4] === 'Нет').length;
-  const percentOfDangerous = (numberOfDangerous / numberOfPlants) * 100;
-  const percentOfSafe = (numberOfSafe / numberOfPlants) * 100;
-  
-  console.log('Percent of safe plants: ', percentOfSafe);
-  console.log('Percent of dangerous plants: ', percentOfDangerous, '\n');
-
-  // Task 4
-  const lifeYears = plants.map((plant) => plant[3].replace('-', ' ').split(' ').filter((item) => {
-    return item !== 'лет' 
-        && item !== 'года' 
-        && item !== 'день' 
-        && item !== 'год'
-  }));
-
-  const midForPlants = lifeYears.map((years) => years.length === 2 ? years[0] + years[1] / 2 : years[0]);
-
-  let acc = 0;
-  for (let num in midForPlants) {
-    acc += num;
+for (var i = 2; i < rows.length; i++) {
+  var columns = rows[i].split('|');
+  var danger = columns[5].trim();
+  if (danger === 'Да') {
+    totalPlantsWithDanger += 1;
+  } else {
+    totalPlantsWithoutDanger += 1;
   }
-  const midForAll = acc / numberOfPlants;
+}
 
-  console.log('Average life of all plants: ', midForAll);
+var percentPlantsWithDanger = (totalPlantsWithDanger / totalPlants) * 100;
+var percentPlantsWithoutDanger = (totalPlantsWithoutDanger / totalPlants) * 100;
 
-  // Task 5
-  // END
+console.log('Опасных растений: ' + totalPlantsWithDanger + ' (' + percentPlantsWithDanger.toFixed(2) + '%)');
+console.log('Безопасных растений: ' + totalPlantsWithoutDanger + ' (' + percentPlantsWithoutDanger.toFixed(2) + '%)');
+
+// 4. Выведите среднее время жизни всех лесных растений
+var totalForestPlants = 0;
+var sumForestPlantsLife = 0;
+
+for (var i = 3; i < rows.length; i++) {
+  var columns = rows[i].split('|');
+  var habitat = columns[2].trim().toLowerCase();
+  var life = columns[4].trim();
+  if (habitat.includes('леса')) {
+    totalForestPlants += 1;
+    var lifeRange = life.split('-');
+    // Тут баг!
+    var minLife = parseInt(lifeRange[0]);
+    var maxLife = parseInt(lifeRange[1]);
+    sumForestPlantsLife += (minLife + maxLife) / 2;
+  }
+}
+
+var averageForestPlantsLife = sumForestPlantsLife / totalForestPlants;
+console.log('Среднее время жизни лесных растений: ' + averageForestPlantsLife.toFixed(2) + ' лет');
+
+// 5. Определите какое место обитания больше всего свойственно опасным для человека растениям
+var habitats = {};
+for (var i = 2; i < rows.length; i++) {
+  var columns = rows[i].split('|');
+  var habitatList = columns[2].trim().split(',');
+  var danger = columns[5].trim();
+  
+  if (danger === 'Да') {
+    for (var j = 0; j < habitatList.length; j++) {
+      var habitat = habitatList[j].trim();
+      if (habitats.hasOwnProperty(habitat)) {
+        habitats[habitat]++;
+      } else {
+        habitats[habitat] = 1;
+      }
+    }
+  }
+}
+
+var mostCommonHabitat = '';
+var mostCommonHabitatCount = 0;
+
+for (var habitat in habitats) {
+  if (habitats[habitat] > mostCommonHabitatCount) {
+    mostCommonHabitat = habitat;
+    mostCommonHabitatCount = habitats[habitat];
+  }
+}
+
+console.log('Самое распространенное место обитания опасных растений: ' + mostCommonHabitat);
 }
